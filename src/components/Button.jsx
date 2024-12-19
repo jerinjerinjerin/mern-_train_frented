@@ -7,15 +7,15 @@ const Button = ({ Variant = "black", Size = "md", children }) => {
 
   switch (Size) {
     case "small":
-      sizeStyles = "py-1 px-3 text-sm";
+      sizeStyles = "py-1 px-3 text-sm w-full";
       break;
 
     case "large":
-      sizeStyles = "py-3 px-6 text-lg";
+      sizeStyles = "py-3 px-6 text-lg w-full";
       break;
 
     default:
-        sizeStyles = "py-2 px-4 text-base";
+        sizeStyles = "py-2 px-4 text-base w-full";
   }
 
 

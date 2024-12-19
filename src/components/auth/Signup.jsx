@@ -120,7 +120,7 @@ const SignupCom = () => {
             Login
           </Link>
         </p>
-        <Button className="text-center" Variant="black">
+        <Button className="text-center " Variant="black">
           Sign Up
         </Button>
       </div>

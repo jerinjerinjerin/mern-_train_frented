@@ -58,7 +58,7 @@ const LoginCom = () => {
         placeholder={"Enter your password"}
         type="password"
         variant="outlined"
-        size="label"
+        size="default"
         required
       />
        <div className="mb-1 w-full">
