@@ -1,6 +1,7 @@
 import React from "react"
-import AppRoutes from './routes/index'
 import { BrowserRouter } from "react-router-dom"
+import { Toaster } from 'react-hot-toast';
+import AppRoutes from './routes/index'
 
 
 function App() {
@@ -9,6 +10,16 @@ function App() {
    <div className="w-screen h-auto">
      <div className="">
       <BrowserRouter>
+      <Toaster 
+         position="bottom-center"
+         reverseOrder={false}
+         containerStyle={{
+           top: 100,
+           left: 0,
+           right: 0,
+           bottom: 0,
+         }}
+      />
         <AppRoutes/>
       </BrowserRouter>
      </div>

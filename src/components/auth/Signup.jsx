@@ -1,50 +1,45 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom"; // Import useNavigate hook
+import { useDispatch, useSelector } from "react-redux";
 import Input from "../Input";
 import Button from "../Button";
-import { Link } from "react-router-dom";
 import ImageUploader from "../ImageUpload";
-import ErrorMessage from "../Error";
+import { signup } from "../../redux/user/userActions";
+import toast from "react-hot-toast";
 
 const SignupCom = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [avatar, setAvatar] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
 
-  const [error, setError] = useState({name, password, confirmPassword})
+  const dispatch = useDispatch();
+  const navigate = useNavigate(); // Initialize useNavigate hook
+  const { loading, error, user } = useSelector((state) => state.auth); 
+
+  console.log("Redux state.auth:", { loading, error, user });
 
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
 
-    let newErrors = {};
+    const userData = {
+      name,
+      email,
+      password,
+      avatarUrl,
+    };
 
-    if(!name.trim()){
-      newErrors.name = "Name is required";
-    }
-
-    if(!password.trim()){
-      newErrors.password = "Password is required";
-    }
-
-    if(password !== confirmPassword){
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    setError(newErrors);
-
-    
-
-    // Proceed with form submission (e.g., call API to register)
-
-    // Reset form fields after successful submission
-    setName("");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setAvatar(null);
-
-    console.log(name, email, password, confirmPassword)
+    dispatch(signup(userData))
+      .unwrap() // Allow direct access to the fulfilled/rejected result
+      .then(() => {
+        navigate("/otp");
+        toast.success("Signup successful! Please verify email.");
+      })
+      .catch((error) => {
+        console.error("Signup error:", error);
+        toast.error(error); // Optionally show the error in a toast
+      });
   };
 
   return (
@@ -52,21 +47,18 @@ const SignupCom = () => {
       {/* Avatar Upload */}
       <div className="mt-2">
         <ImageUploader
-          value={avatar}
+          value={avatarUrl}
           label="Avatar"
-          onChange={(file) => setAvatar(file.target.value)}
+          onChange={(file) => setAvatarUrl(file.target.value)}
           accept="image/jpeg, image/png, image/jpg"
-          onImageSelect={(file) => setAvatar(file)}
+          onImageSelect={(file) => setAvatarUrl(file)}
         />
       </div>
 
       {/* Name Input */}
       <Input
         value={name}
-        onChange={(e) => {
-          setName(e.target.value);
-          setError((prev) => ({ ...prev, name: "" })); // Clear email error when typing
-        }}
+        onChange={(e) => setName(e.target.value)}
         label="Name"
         placeholder="Enter your name"
         type="text"
@@ -74,9 +66,7 @@ const SignupCom = () => {
         size="default"
         required
       />
-       <div className="mb-1 w-full">
-        <ErrorMessage message={error.name}/>
-      </div>
+
       {/* Email Input */}
       <Input
         value={email}
@@ -88,6 +78,7 @@ const SignupCom = () => {
         size="default"
         required
       />
+
       {/* Password Input */}
       <Input
         value={password}
@@ -120,8 +111,8 @@ const SignupCom = () => {
             Login
           </Link>
         </p>
-        <Button className="text-center " Variant="black">
-          Sign Up
+        <Button className="text-center" Variant="black" type="submit" disabled={loading}>
+          {loading ? "Signing Up..." : "Sign Up"}
         </Button>
       </div>
     </form>

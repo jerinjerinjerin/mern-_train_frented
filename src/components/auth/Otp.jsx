@@ -1,6 +1,15 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getotp } from "../../redux/user/userActions";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const OtpScreen = () => {
+  const { loading, error, user } = useSelector((state) => state.auth);
+  console.log("Redux state.auth:", { loading, error, user });
+  console.log(user?.data.isValidUser    ,'validuser')
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [otp, setOtp] = useState(Array(6).fill(""));
   const inputRefs = useRef([]);
 
@@ -26,9 +35,24 @@ const OtpScreen = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const otpValue = otp.join("");
+    if (otpValue.length < 6) {
+      toast.error("Please enter the complete OTP.");
+      return;
+    }
     console.log("Entered OTP:", otpValue);
-    // Add your OTP verification logic here
+    const otpNumber = otpValue
+    dispatch(getotp(otpNumber))
   };
+
+  useEffect(() => {
+   if(user?.data.isValidUser){
+    navigate('/login')
+    toast.success('OTP verified successfully please login')
+   }
+ 
+  },[])
+
+  
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">

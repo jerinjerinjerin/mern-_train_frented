@@ -1,78 +1,87 @@
 import React, { useState } from "react";
 import Input from "../Input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../Button";
-import ErrorMessage from "../Error";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../../redux/user/userActions";
+import toast from "react-hot-toast";
 
 const LoginCom = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState({email:"", password:""});
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
 
-    let newError = {}
-
-
-    if(!email.trim()){
-      newError.email = "Email is required";
-    }
-    if(!password.trim()){
-      newError.password = "Password is required";
+    // Validation
+    if (!email.trim() || !password.trim()) {
+      toast.error("Please fill in all fields.");
+      return;
     }
 
-    setError(newError)
+    const loginData = { email, password };
 
-    setEmail('');
-    setPassword('');
+    dispatch(login(loginData))
+    .unwrap()
+    .then(() => {
+      toast.success("Login successful! Redirecting...");
+      setEmail("");
+      setPassword("");
+      navigate("/");
+    })
+    .catch((error) => {
+      console.error("Login error:", error);
+      const errorMessage = error?.message || "Unable to login. Please check your credentials.";
+      toast.error(errorMessage);
+    });
+  
+  };
 
-    console.log('login inputs',email, password)
-
-  }
   return (
     <form className="w-full md:mt-5 mt-2 py-2" onSubmit={handleLoginSubmit}>
+      {/* Email Input */}
       <Input
         value={email}
-        onChange={(e) => {
-          setEmail(e.target.value);
-          setError((prev) => ({ ...prev, email: "" })); // Clear email error when typing
-        }}
-        label={"Email"}
-        placeholder={"Enter your Email Address"}
+        onChange={(e) => setEmail(e.target.value)}
+        label="Email"
+        placeholder="Enter your Email Address"
         type="email"
         variant="outlined"
         size="default"
         required
       />
-      <div className="mb-1 w-full">
-        <ErrorMessage message={error.email}/>
-      </div>
+
+      {/* Password Input */}
       <Input
         value={password}
-        onChange={(e) => {
-          setPassword(e.target.value);
-          setError((prev) => ({...prev, password:""}))
-        }}
-        label={"Password"}
-        placeholder={"Enter your password"}
+        onChange={(e) => setPassword(e.target.value)}
+        label="Password"
+        placeholder="Enter your password"
         type="password"
         variant="outlined"
         size="default"
         required
       />
-       <div className="mb-1 w-full">
-        <ErrorMessage message={error.password}/>
-      </div>
+
+      {/* Submit Button */}
       <div className="flex mt-2 flex-col gap-2">
         <p className="font-semibold">
-          Don&apos;t have an account {" "}
-          <Link to={"/signup"} className="text-blue-600">
+          Don&apos;t have an account?{" "}
+          <Link to="/signup" className="text-blue-600">
             Signup
           </Link>
         </p>
-        <Button className=" text-center" Variant="black">
-          Login
+        <Button className="text-center" Variant="black" type="submit" disabled={loading}>
+          {loading ? (
+            <div className="flex items-center justify-center gap-2">
+              Logging in...<span className="animate-spin">🔄</span>
+            </div>
+          ) : (
+            "Login"
+          )}
         </Button>
       </div>
     </form>
